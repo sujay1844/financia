@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className="dark">
+        <body className="">
           <Header />
           {children}
         </body>
