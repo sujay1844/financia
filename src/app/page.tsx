@@ -1,5 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
-import FinanceTracker from "./finance-tracker";
+import { Transactions } from "./transactions";
+import { NewTransaction } from "./add-new-transaction";
+import { Expenses } from "./expenses";
 
 export default async function Home() {
   const user = await currentUser();
@@ -13,7 +15,9 @@ export default async function Home() {
 
   return (
     <>
-      <FinanceTracker />
+      <NewTransaction />
+      <Expenses />
+      <Transactions />
     </>
   );
 }

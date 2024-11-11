@@ -21,6 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { currentUser } from "@clerk/nextjs/server";
 
 type Transaction = {
   id: number;
@@ -118,49 +119,54 @@ export default function FinanceTracker() {
           </form>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isPending ? (
-            <div className="text-center py-4">Loading...</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>{transaction.vendor}</TableCell>
-                    <TableCell>{transaction.description}</TableCell>
-                    <TableCell>
-                      ${(transaction.amount / 100).toFixed(2)}
-                    </TableCell>
-                    <TableCell>{transaction.category}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDelete(transaction.id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </div>
+  );
+}
+
+export async function Transactions() {
+  const user = await currentUser();
+  if (!user) {
+    throw new Error("Not authenticated");
+  }
+  const transactions = await getTransactions();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Transactions</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Vendor</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell>{transaction.vendor}</TableCell>
+                <TableCell>{transaction.description}</TableCell>
+                <TableCell>${(transaction.amount / 100).toFixed(2)}</TableCell>
+                <TableCell>{transaction.category}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="destructive"
+                    onClick={async () =>
+                      await deleteTransaction(transaction.id)
+                    }
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
