@@ -1,31 +1,98 @@
-{% block content %} {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %} {% if next %} {% if user.is_authenticated %}
-<p>
-    Your account doesn't have access to this page. To proceed, please login with
-    an account that has access.
-</p>
-{% else %}
-<p>Please login to see this page.</p>
-{% endif %} {% endif %}
+{% block content %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        background-color: white;
+    }
 
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    <table>
-        <tr>
-            <td>{{ form.username.label_tag }}</td>
-            <td>{{ form.username }}</td>
-        </tr>
-        <tr>
-            <td>{{ form.password.label_tag }}</td>
-            <td>{{ form.password }}</td>
-        </tr>
-    </table>
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next }}" />
-</form>
+    .login-error {
+        color: #dc3545;
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 4px;
+        background-color: #f8d7da;
+    }
 
-{# Assumes you set up the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    .login-form table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .login-form td {
+        padding: 8px 0;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .login-form input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .login-form input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    .password-reset-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .password-reset-link a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    .password-reset-link a:hover {
+        color: #007bff;
+    }
+</style>
+
+<div class="login-container">
+    {% if form.errors %}
+    <p class="login-error">Your username and password didn't match. Please try again.</p>
+    {% endif %} {% if next %} {% if user.is_authenticated %}
+    <p>
+        Your account doesn't have access to this page. To proceed, please login with
+        an account that has access.
+    </p>
+    {% else %}
+    <p>Please login to see this page.</p>
+    {% endif %} {% endif %}
+
+    <form method="post" action="{% url 'login' %}" class="login-form">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td>{{ form.username.label_tag }}</td>
+                <td>{{ form.username }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.password.label_tag }}</td>
+                <td>{{ form.password }}</td>
+            </tr>
+        </table>
+        <input type="submit" value="login" />
+        <input type="hidden" name="next" value="{{ next }}" />
+    </form>
+
+    <p class="password-reset-link"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+</div>
 
 {% endblock %}
