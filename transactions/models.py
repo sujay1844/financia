@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.db.models import Sum
+from django.db import connection
 
 
 class Category(models.Model):
@@ -55,3 +56,20 @@ class Budget(models.Model):
         ).aggregate(Sum('amount'))['amount__sum'] or 0
         
         return (actual_spending / self.amount) * 100 if self.amount > 0 else 0
+
+    @classmethod
+    def get_statistics(cls, user, start_date, end_date):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                CALL calculate_budget_statistics(%s, %s, %s, 0, 0, 0);
+                """, [user.id, start_date, end_date])
+            cursor.execute("""
+                SELECT total_expenses, total_income, budget_utilization 
+                FROM calculate_budget_statistics(%s, %s, %s);
+                """, [user.id, start_date, end_date])
+            row = cursor.fetchone()
+            return {
+                'total_expenses': row[0],
+                'total_income': row[1],
+                'budget_utilization': row[2]
+            }
