@@ -47,6 +47,9 @@ BEGIN
     ELSIF TG_OP = 'UPDATE' THEN
         INSERT INTO transaction_log (transaction_id, action, old_amount, new_amount)
         VALUES (NEW.id, 'UPDATE', OLD.amount, NEW.amount);
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO transaction_log (transaction_id, action, old_amount)
+        VALUES (OLD.id, 'DELETE', OLD.amount);
     END IF;
     RETURN NEW;
 END;
@@ -54,7 +57,7 @@ $$ LANGUAGE plpgsql;
 
 -- Trigger for transaction changes
 CREATE TRIGGER transaction_changes_trigger
-AFTER INSERT OR UPDATE ON transactions_transaction
+AFTER INSERT OR UPDATE OR DELETE ON transactions_transaction
 FOR EACH ROW
 EXECUTE FUNCTION log_transaction_changes();
 
